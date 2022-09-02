@@ -9,7 +9,7 @@ if (!fs.existsSync("./output")) fs.mkdirSync("./output");
    * APNG to GIF
    */
   const image = await apng.sharpFromApng("./animated.png");
-  image.toFile("./output/apng2gif.gif");
+  await image.toFile("./output/apng2gif.gif");
 
   /**
    * APNG to frames
@@ -22,7 +22,7 @@ if (!fs.existsSync("./output")) fs.mkdirSync("./output");
   /**
    * GIF to APNG
    */
-  apng.sharpToApng(
+  await apng.sharpToApng(
     sharp("./animated.gif", { animated: true }),
     "./output/gif2apng.png"
   );
@@ -30,8 +30,19 @@ if (!fs.existsSync("./output")) fs.mkdirSync("./output");
   /**
    * frames to APNG
    */
-  apng.framesToApng(
+  await apng.framesToApng(
     fs.readdirSync("./frames").map((file) => sharp(`./frames/${file}`)),
     "./output/animated.png"
+  );
+
+  /**
+   * Concat animated images
+   */
+  await apng.framesToApng(
+    [
+      await apng.sharpFromApng("./output/gif2apng.png"),
+      sharp("./output/apng2gif.gif", { animated: true }),
+    ],
+    "./output/concat.png"
   );
 })();

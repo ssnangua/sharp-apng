@@ -59,10 +59,22 @@ Returns `Sharp[] | ImageData` - Return an array of instance of sharp, or an [Ima
 Create an instance of animated sharp from an APNG image.
 
 - `input` (String | Buffer) - A String containing the filesystem path to an APNG image file, or a Buffer containing APNG image data.
-- `options` [GifOptions](https://github.com/ssnangua/sharp-gif#gifcreategifoptions-object-gif) - Options for `createGif()`.
+- `options` [DecoderOptions](#decoderoptions) - Options for decode animated GIF and create sharp instance.
 - `resolveWithObject` Boolean _(optional)_ - Return an [ImageData](#imagedata) containing `image` (instance of sharp) property and decoding info instead of only instance of sharp. Default by `false`.
 
 Returns `Promise<Sharp | ImageData>` - Resolve with an instance of animated sharp, or an [ImageData](#imagedata) containing `image` (an instances of sharp) property and decoding info.
+
+
+### `DecoderOptions`
+
+Options for decode animated GIF and create sharp instance.
+
+- `sharpOptions` Number _(optional)_ - Sharp constructor [options](https://sharp.pixelplumbing.com/api-constructor#parameters).
+- `delay` Number _(optional)_ - Amount of milliseconds to delay between frames.
+- `repeat` Number _(optional)_ - Amount of times to repeat GIF. Default by `0`, loop indefinitely.
+- `quality` Number _(optional)_ - Quality, `1` is best colors and worst performance, `20` is suggested maximum but there is no limit. Default by `10`
+- `transparent` String _(optional)_ - Define the color which represents transparency in the GIF.
+- `disposalCode` Number _(optional)_ - Alters behavior of how to render between frames. If no transparent color has been set, defaults to 0. Otherwise, defaults to 2.
 
 ### `ImageData`
 
@@ -74,7 +86,7 @@ Contains the following decoding info:
 - `ctype` Number - Color type of the file (Truecolor, Grayscale, Palette ...).
 - `pages` Number - Number of frames contained within the image.
 - `delay` Number[] - Delay in ms between each frame.
-- `frames` Sharp[] - Instances of sharp from APNG frames.
+- `frames` Sharp[] _(`apng.framesFromApng()` only)_ - Instances of sharp from APNG frames.
 - `image` Sharp _(`apng.sharpFromApng()` only)_ - Animated sharp instance.
 
 ### `apng.framesToApng(images, fileOut, options?)`
@@ -83,7 +95,7 @@ Write an APNG file from sharps.
 
 - `images` Sharp[] - An array of instances of sharp.
 - `fileOut` String - The path to write the image data to.
-- `options` [EncoderOptions](#EncoderOptions) _(optional)_ - Options for encoding
+- `options` [EncoderOptions](#encoderoptions) _(optional)_ - Options for encoding
 
 Returns `Promise<Object>` - Resolve with an Object containing `size`, `width`, `height` properties.
 
@@ -93,11 +105,13 @@ Write an APNG file from an animated sharp.
 
 - `image` Sharp - An instance of animated sharp.
 - `fileOut` String - The path to write the image data to.
-- `options` [EncoderOptions](#EncoderOptions) _(optional)_ - Options for encoding
+- `options` [EncoderOptions](#encoderoptions) _(optional)_ - Options for resize frames and encoding APNG.
 
 Returns `Promise<Object>` - Resolve with an Object containing `size`, `width`, `height` properties.
 
 ### EncoderOptions
+
+Options for resize frames and encode APNG.
 
 - `width` Number _(optional)_ - Width, in pixels, of the GIF to output.
 - `height` Number _(optional)_ - Height, in pixels, of the GIF to output.
@@ -107,3 +121,9 @@ Returns `Promise<Object>` - Resolve with an Object containing `size`, `width`, `
 - `resizeType` ("zoom" | "crop") _(optional)_ - `zoom` use sharp.resize(), `crop` use sharp.extend() and sharp.extract().
 - `resizeOptions` [sharp.ResizeOptions](https://sharp.pixelplumbing.com/api-resize#parameters) _(optional)_ - Options for sharp.resize().
 - `extendBackground` [sharp.Color](https://www.npmjs.org/package/color) _(optional)_ - Background option for sharp.extend().
+
+## Change Log
+
+### 0.1.1
+
+- Feature: Remove [sharp-gif](https://www.npmjs.com/package/sharp-gif) dependency, use [gif-encoder](https://www.npmjs.com/package/gif-encoder) to encode animated GIF buffer directly to improve performance.

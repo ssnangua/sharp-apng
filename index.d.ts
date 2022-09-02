@@ -1,5 +1,4 @@
-import { Sharp } from "sharp";
-import { GifOptions } from "sharp-gif";
+import { Sharp, SharpOptions } from "sharp";
 
 /**
  * APNG image data
@@ -9,8 +8,8 @@ import { GifOptions } from "sharp-gif";
  * @param ctype - Color type of the file (Truecolor, Grayscale, Palette ...).
  * @param pages - Number of frames contained within the image.
  * @param delay - Delay in ms between each frame.
- * @param frames - Instances of sharp from APNG frames.
- * @param image - Animated sharp instance.
+ * @param frames - (`framesFromApng` only) Instances of sharp from APNG frames.
+ * @param image - (`sharpFromApng` only) Animated sharp instance.
  * @public
  */
 export declare interface ImageData {
@@ -20,12 +19,30 @@ export declare interface ImageData {
   ctype: Number;
   pages: Number;
   delay: Number[];
-  frames: Sharp[];
+  frames?: Sharp[];
   image?: Sharp;
 }
 
 /**
- * UPNG encode options
+ * Decoder options
+ * @param sharpOptions - Sharp constructor options.
+ * @param delay - Amount of milliseconds to delay between frames.
+ * @param repeat - Amount of times to repeat GIF. Default by `0`, loop indefinitely.
+ * @param quality - Quality, `1` is best colors and worst performance, `20` is suggested maximum but there is no limit. Default by `10`
+ * @param transparent - Define the color which represents transparency in the GIF.
+ * @param disposalCode - Alters behavior of how to render between frames. If no transparent color has been set, defaults to 0. Otherwise, defaults to 2.
+ */
+export declare interface DecoderOptions {
+  sharpOptions?: SharpOptions;
+  delay?: Number;
+  repeat?: Number;
+  quality?: Number;
+  transparent?: String;
+  disposalCode?: Number;
+}
+
+/**
+ * Encoder options
  * @param width - Width, in pixels, of the GIF to output.
  * @param height - Height, in pixels, of the GIF to output.
  * @param cnum - Number of colors in the result; 0: all colors (lossless PNG)
@@ -72,7 +89,7 @@ export declare function framesFromApng(
  */
 export declare function sharpFromApng(
   input: string | Buffer,
-  options?: GifOptions,
+  options?: DecoderOptions,
   resolveWithObject?: Boolean
 ): Promise<Sharp | ImageData>;
 

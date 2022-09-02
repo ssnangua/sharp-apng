@@ -1,6 +1,6 @@
 {
   "name": "sharp-apng",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "APNG(animated PNG) encoder and decoder for sharp base on upng-js.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -31,12 +31,13 @@
     "LICENSE"
   ],
   "devDependencies": {
+    "@types/gif-encoder": "^0.7.1",
     "@types/sharp": "^0.30.4",
     "@types/upng-js": "^2.1.2"
   },
   "dependencies": {
+    "gif-encoder": "*",
     "sharp": "*",
-    "sharp-gif": "^0.1.5",
     "upng-js": "*"
   }
 }

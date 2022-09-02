@@ -1,41 +1,112 @@
 const fs = require("fs");
 const sharp = require("sharp");
-const GIF = require("sharp-gif");
+const GifEncoder = require("gif-encoder");
 const UPNG = require("upng-js");
 
 /**
- * Cut APNG frames to instances of sharp
+ * Cut frames from animated sharp
+ */
+async function getFrames(image) {
+  const { pages, width, pageHeight } = await image.metadata();
+  const frames = [];
+  if (pages > 1) {
+    image = sharp(await image.png().toBuffer());
+    for (let i = 0; i < pages; i++) {
+      const frame = image.clone().extract({
+        left: 0,
+        top: pageHeight * i,
+        width: width,
+        height: pageHeight,
+      });
+      frames.push(sharp(await frame.toBuffer()));
+    }
+  } else {
+    frames.push(image);
+  }
+  return frames;
+}
+
+/**
+ * Decode APNG image
+ */
+function decodeApng(input) {
+  const buffer = typeof input === "string" ? fs.readFileSync(input) : input;
+  const decoder = UPNG.decode(buffer);
+  const { width, height, depth, ctype } = decoder;
+  const delay = decoder.frames.map((frame) => frame.delay);
+  const frames = UPNG.toRGBA8(decoder).map((frame) => Buffer.from(frame));
+  return { width, height, depth, ctype, delay, pages: frames.length, frames };
+}
+
+/**
+ * Encode animated GIF
+ * sharp does not support APNG encoding,
+ * nor creates animated instance from frames,
+ * so we have to convert to GIF encoded buffer.
+ */
+function encodeGif(frames, options) {
+  const { width, height, delay, repeat, quality, transparent, disposalCode } =
+    options;
+  const bufs = [];
+
+  const encoder = new GifEncoder(width, height, options);
+  encoder.setRepeat(repeat || 0);
+  encoder.setTransparent(transparent || "#FFFFFF");
+  if (typeof delay === "number") encoder.setDelay(delay);
+  if (typeof quality === "number") encoder.setQuality(quality);
+  if (typeof disposalCode === "number") encoder.setDispose(disposalCode);
+
+  encoder.on("data", (buffer) => bufs.push(buffer));
+  const promise = new Promise((resolve, reject) => {
+    encoder.on("end", () => resolve(Buffer.concat(bufs)));
+    encoder.on("error", reject);
+  });
+
+  // Write out header bytes.
+  encoder.writeHeader();
+  // Write out frames
+  frames.forEach((frame) => encoder.addFrame(frame));
+  // Write out footer bytes.
+  encoder.finish();
+
+  return promise;
+}
+
+/**
+ * Create instances of sharp from APNG frames.
  */
 function framesFromApng(input, resolveWithObject = false) {
-  const buffer = typeof input === "string" ? fs.readFileSync(input) : input;
-  const apng = UPNG.decode(buffer);
-  const { width, height, depth, ctype } = apng;
-  const delay = apng.frames.map((frame) => frame.delay);
-  const frames = UPNG.toRGBA8(apng).map((frame) => {
-    return sharp(Buffer.from(frame), {
-      raw: { width, height, channels: 4 },
+  const apng = decodeApng(input);
+  const frames = apng.frames.map((frame) => {
+    return sharp(frame, {
+      raw: {
+        width: apng.width,
+        height: apng.height,
+        channels: 4,
+      },
     });
   });
-  return resolveWithObject
-    ? { width, height, depth, ctype, pages: frames.length, delay, frames }
-    : frames;
+  return resolveWithObject ? { ...apng, frames } : frames;
 }
 
 /**
  * Create an instance of animated sharp from an APNG image
  */
-async function sharpFromApng(input, options, resolveWithObject = false) {
-  const { frames, width, height, depth, ctype, pages, delay } = framesFromApng(
-    input,
-    true
-  );
-  const image = await GIF.createGif({ transparent: "#FFFFFF", ...options })
-    .addFrame(frames)
-    .toSharp();
-  if (typeof options?.delay !== "number") image.gif({ delay });
-  return resolveWithObject
-    ? { width, height, depth, ctype, pages, delay, frames, image }
-    : image;
+async function sharpFromApng(input, options = {}, resolveWithObject = false) {
+  const apng = decodeApng(input);
+  const gifBuffer = await encodeGif(apng.frames, {
+    width: apng.width,
+    height: apng.height,
+    ...options,
+  });
+  const image = sharp(gifBuffer, {
+    animated: true,
+    ...options.sharpOptions,
+  }).gif({
+    loop: options.repeat || 0,
+    delay: options.delay || apng.delay,
+  });
+  return resolveWithObject ? { ...apng, image } : image;
 }
 
 /**
@@ -76,7 +147,7 @@ async function framesToApng(images, fileOut, options = {}) {
     const frame = images[i];
     const { pages, delay } = meta?.[i] || (await frame.metadata());
     if (pages > 1) {
-      const frames = await GIF.readGif(frame).toFrames();
+      const frames = await getFrames(frame);
       cutted.push(...frames);
       dels.push(...delay);
     } else {
@@ -136,7 +207,7 @@ async function framesToApng(images, fileOut, options = {}) {
  * Write an APNG file from an animated sharp
  */
 async function sharpToApng(image, fileOut, options = {}) {
-  const frames = await GIF.readGif(image).toFrames();
+  const frames = await getFrames(image);
   const { delay } = await image.metadata();
   return framesToApng(frames, fileOut, { delay, ...options });
 }
