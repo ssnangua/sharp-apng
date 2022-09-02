@@ -1,4 +1,4 @@
-import { Sharp, SharpOptions } from "sharp";
+import { Color, RawOptions, ResizeOptions, Sharp, SharpOptions } from "sharp";
 
 /**
  * APNG image data
