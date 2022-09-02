@@ -60,7 +60,7 @@ Create an instance of animated sharp from an APNG image.
 
 - `input` (String | Buffer) - A String containing the filesystem path to an APNG image file, or a Buffer containing APNG image data.
 - `options` [GifOptions](https://github.com/ssnangua/sharp-gif#gifcreategifoptions-object-gif) - Options for `createGif()`.
-- `resolveWithObject` Boolean _(optional)_ - Return an Object containing `image` (instance of sharp) property and decoding info instead of only instance of sharp. Default by `false`.
+- `resolveWithObject` Boolean _(optional)_ - Return an [ImageData](#imagedata) containing `image` (instance of sharp) property and decoding info instead of only instance of sharp. Default by `false`.
 
 Returns `Promise<Sharp | ImageData>` - Resolve with an instance of animated sharp, or an [ImageData](#imagedata) containing `image` (an instances of sharp) property and decoding info.
 
@@ -91,7 +91,7 @@ Returns `Promise<Object>` - Resolve with an Object containing `size`, `width`, `
 
 Write an APNG file from an animated sharp.
 
-- `image` Sharp - An instance of sharp.
+- `image` Sharp - An instance of animated sharp.
 - `fileOut` String - The path to write the image data to.
 - `options` [EncoderOptions](#EncoderOptions) _(optional)_ - Options for encoding
 
