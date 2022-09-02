@@ -31,8 +31,13 @@ export declare interface ImageData {
  * @param quality - Quality, `1` is best colors and worst performance, `20` is suggested maximum but there is no limit. Default by `10`
  * @param transparent - Define the color which represents transparency in the GIF.
  * @param disposalCode - Alters behavior of how to render between frames. If no transparent color has been set, defaults to 0. Otherwise, defaults to 2.
+ * @param gifEncoderOptions
  */
 export declare interface DecoderOptions {
+  gifEncoderOptions?: {
+    // Number, in bytes, to store in internal buffer. Defaults to 64kB.
+    highWaterMark?: number | undefined;
+  };
   sharpOptions?: SharpOptions;
   delay?: Number;
   repeat?: Number;

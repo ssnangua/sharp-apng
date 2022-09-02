@@ -49,7 +49,7 @@ function encodeGif(frames, options) {
     options;
   const bufs = [];
 
-  const encoder = new GifEncoder(width, height, options);
+  const encoder = new GifEncoder(width, height, options.gifEncoderOptions);
   encoder.setRepeat(repeat || 0);
   encoder.setTransparent(transparent || "#FFFFFF");
   if (typeof delay === "number") encoder.setDelay(delay);
