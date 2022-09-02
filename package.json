@@ -1,0 +1,42 @@
+{
+  "name": "sharp-apng",
+  "version": "0.1.0",
+  "description": "APNG(animated PNG) encoder and decoder for sharp base on upng-js.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "types": "./index.d.ts",
+  "main": "./index.js",
+  "keywords": [
+    "sharp",
+    "animated",
+    "png",
+    "apng",
+    "image",
+    "convert"
+  ],
+  "author": "ssnangua",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ssnangua/sharp-apng"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@types/sharp": "^0.30.4",
+    "@types/upng-js": "^2.1.2"
+  },
+  "dependencies": {
+    "sharp": "*",
+    "sharp-gif": "^0.1.5",
+    "upng-js": "*"
+  }
+}
