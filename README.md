@@ -60,10 +60,9 @@ Create an instance of animated sharp from an APNG image.
 
 - `input` (String | Buffer) - A String containing the filesystem path to an APNG image file, or a Buffer containing APNG image data.
 - `options` [DecoderOptions](#decoderoptions) - Options for decode animated GIF and create sharp instance.
-- `resolveWithObject` Boolean _(optional)_ - Return an [ImageData](#imagedata) containing `image` (instance of sharp) property and decoding info instead of only instance of sharp. Default by `false`.
+- `resolveWithObject` Boolean _(optional)_ - Return an [ImageData](#imagedata) containing `image` (an instance of sharp) property and decoding info instead of only an instance of sharp. Default by `false`.
 
 Returns `Promise<Sharp | ImageData>` - Resolve with an instance of animated sharp, or an [ImageData](#imagedata) containing `image` (an instances of sharp) property and decoding info.
-
 
 ### `DecoderOptions`
 
@@ -73,7 +72,7 @@ Options for decode animated GIF and create sharp instance.
 - `delay` Number _(optional)_ - Amount of milliseconds to delay between frames.
 - `repeat` Number _(optional)_ - Amount of times to repeat GIF. Default by `0`, loop indefinitely.
 - `quality` Number _(optional)_ - Quality, `1` is best colors and worst performance, `20` is suggested maximum but there is no limit. Default by `10`
-- `transparent` String _(optional)_ - Define the color which represents transparency in the GIF.
+- `transparent` String _(optional)_ - Define the color which represents transparency in the GIF. Default by `"#FFFFFF"`.
 - `disposalCode` Number _(optional)_ - Alters behavior of how to render between frames. If no transparent color has been set, defaults to 0. Otherwise, defaults to 2.
 
 ### `ImageData`
@@ -81,7 +80,7 @@ Options for decode animated GIF and create sharp instance.
 Contains the following decoding info:
 
 - `width` Number - The width of the image, in pixels.
-- `height` Number Number - The height of the image, in pixels.
+- `height` Number - The height of the image, in pixels.
 - `depth` Number - Number of bits per channel.
 - `ctype` Number - Color type of the file (Truecolor, Grayscale, Palette ...).
 - `pages` Number - Number of frames contained within the image.
@@ -95,7 +94,7 @@ Write an APNG file from sharps.
 
 - `images` Sharp[] - An array of instances of sharp.
 - `fileOut` String - The path to write the image data to.
-- `options` [EncoderOptions](#encoderoptions) _(optional)_ - Options for encoding
+- `options` [EncoderOptions](#encoderoptions) _(optional)_ - Options for resize frames and encoding APNG.
 
 Returns `Promise<Object>` - Resolve with an Object containing `size`, `width`, `height` properties.
 
@@ -113,14 +112,14 @@ Returns `Promise<Object>` - Resolve with an Object containing `size`, `width`, `
 
 Options for resize frames and encode APNG.
 
-- `width` Number _(optional)_ - Width, in pixels, of the GIF to output.
-- `height` Number _(optional)_ - Height, in pixels, of the GIF to output.
+- `width` Number _(optional)_ - Width, in pixels, of the APNG to output. If omitted, will use `resizeTo` option.
+- `height` Number _(optional)_ - Height, in pixels, of the APNG to output. If omitted, will use `resizeTo` option.
 - `cnum` Number _(optional)_ - Number of colors in the result; 0: all colors (lossless PNG)
 - `delay` (Number | Number[]) _(optional)_ - Delay(s) between animation frames (in milliseconds, only when 2 or more frames)
 - `resizeTo` ("largest" | "smallest") _(optional)_ - Resize all frame to the `largest` frame or `smallest` frame size. Default by `largest`.
 - `resizeType` ("zoom" | "crop") _(optional)_ - `zoom` use sharp.resize(), `crop` use sharp.extend() and sharp.extract().
 - `resizeOptions` [sharp.ResizeOptions](https://sharp.pixelplumbing.com/api-resize#parameters) _(optional)_ - Options for sharp.resize().
-- `extendBackground` [sharp.Color](https://www.npmjs.org/package/color) _(optional)_ - Background option for sharp.extend().
+- `extendBackground` [sharp.Color](https://www.npmjs.org/package/color) _(optional)_ - Background option for sharp.extend(). Default by `{ r: 0, g: 0, b: 0, alpha: 0 }`.
 
 ## Change Log
 
