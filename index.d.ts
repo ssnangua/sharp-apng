@@ -25,25 +25,26 @@ export declare interface ImageData {
 
 /**
  * Decoder options
- * @param sharpOptions - Sharp constructor options.
- * @param delay - Amount of milliseconds to delay between frames.
- * @param repeat - Amount of times to repeat GIF. Default by `0`, loop indefinitely.
- * @param quality - Quality, `1` is best colors and worst performance, `20` is suggested maximum but there is no limit. Default by `10`
- * @param transparent - Define the color which represents transparency in the GIF.
- * @param disposalCode - Alters behavior of how to render between frames. If no transparent color has been set, defaults to 0. Otherwise, defaults to 2.
- * @param gifEncoderOptions
+ * @param gifEncoderOptions - gifenc GIFEncoder() options.
+ * @param gifEncoderQuantizeOptions - gifenc quantize() options.
+ * @param gifEncoderFrameOptions - gifenc gif.writeFrame() options.
+ * @param sharpOptions - sharp constructor options.
+ * @param delay - Delay(s) between animation frames (in milliseconds).
+ * @param repeat - Number of animation iterations, use `0` for infinite animation. Default by `0`.
+ * @param transparent - Enable 1-bit transparency for the GIF.
+ * @param maxColors - Quantize the total number of colors down to a reduced palette no greater than maxColors. Default by `256`.
+ * @param format - Color format. Default by `"rgb565"`.
  */
 export declare interface DecoderOptions {
-  gifEncoderOptions?: {
-    // Number, in bytes, to store in internal buffer. Defaults to 64kB.
-    highWaterMark?: number | undefined;
-  };
+  gifEncoderOptions?: GifEncoderOptions;
+  gifEncoderQuantizeOptions?: GifEncoderQuantizeOptions;
+  gifEncoderFrameOptions?: GifEncoderFrameOptions;
   sharpOptions?: SharpOptions;
-  delay?: Number;
+  delay?: Number | Number[];
   repeat?: Number;
-  quality?: Number;
-  transparent?: String;
-  disposalCode?: Number;
+  transparent?: Boolean;
+  maxColors?: Number;
+  format?: "rgb565" | "rgb444" | "rgba4444";
 }
 
 /**

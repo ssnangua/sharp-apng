@@ -1,6 +1,6 @@
 const fs = require("fs");
 const sharp = require("sharp");
-const GifEncoder = require("gif-encoder");
+const { GIFEncoder, quantize, applyPalette } = require("gifenc");
 const UPNG = require("upng-js");
 
 /**
@@ -45,31 +45,49 @@ function decodeApng(input) {
  * so we have to convert to GIF encoded buffer.
  */
 function encodeGif(frames, options) {
-  const { width, height, delay, repeat, quality, transparent, disposalCode } =
-    options;
-  const bufs = [];
+  let {
+    width,
+    height,
+    delay = [],
+    repeat = 0,
+    transparent = false,
+    maxColors = 256,
+    format = "rgb565",
+    gifEncoderOptions = {},
+    gifEncoderQuantizeOptions = {},
+    gifEncoderFrameOptions = {},
+  } = options;
 
-  const encoder = new GifEncoder(width, height, options.gifEncoderOptions);
-  encoder.setRepeat(repeat || 0);
-  encoder.setTransparent(transparent || "#FFFFFF");
-  if (typeof delay === "number") encoder.setDelay(delay);
-  if (typeof quality === "number") encoder.setQuality(quality);
-  if (typeof disposalCode === "number") encoder.setDispose(disposalCode);
+  if (typeof delay === "number") {
+    delay = new Array(frames.length).fill(delay);
+  }
+  if (repeat === 1) {
+    repeat = -1;
+  }
 
-  encoder.on("data", (buffer) => bufs.push(buffer));
-  const promise = new Promise((resolve, reject) => {
-    encoder.on("end", () => resolve(Buffer.concat(bufs)));
-    encoder.on("error", reject);
+  const encoder = GIFEncoder(gifEncoderOptions);
+
+  // Write out frames
+  frames.forEach((frame, i) => {
+    const data = new Uint8ClampedArray(frame);
+    const palette = quantize(data, maxColors, {
+      format,
+      ...gifEncoderQuantizeOptions,
+    });
+    const index = applyPalette(data, palette, format);
+    encoder.writeFrame(index, width, height, {
+      transparent,
+      delay: delay[i],
+      repeat,
+      ...gifEncoderFrameOptions,
+      palette,
+    });
   });
 
-  // Write out header bytes.
-  encoder.writeHeader();
-  // Write out frames
-  frames.forEach((frame) => encoder.addFrame(frame));
   // Write out footer bytes.
   encoder.finish();
 
-  return promise;
+  return encoder.bytes();
 }
 
 /**
@@ -94,7 +112,7 @@ function framesFromApng(input, resolveWithObject = false) {
  */
 async function sharpFromApng(input, options = {}, resolveWithObject = false) {
   const apng = decodeApng(input);
-  const gifBuffer = await encodeGif(apng.frames, {
+  const gifBuffer = encodeGif(apng.frames, {
     width: apng.width,
     height: apng.height,
     ...options,
@@ -194,7 +212,7 @@ async function framesToApng(images, fileOut, options = {}) {
       }
     }
 
-    const { buffer } = await frame.ensureAlpha(0).raw(rawOptions).toBuffer();
+    const { buffer } = await frame.ensureAlpha().raw(rawOptions).toBuffer();
     bufs.push(buffer);
   }
 

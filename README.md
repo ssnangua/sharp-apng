@@ -59,21 +59,27 @@ Returns `Sharp[] | ImageData` - Return an array of instance of sharp, or an [Ima
 Create an instance of animated sharp from an APNG image.
 
 - `input` (String | Buffer) - A String containing the filesystem path to an APNG image file, or a Buffer containing APNG image data.
-- `options` [DecoderOptions](#decoderoptions) - Options for decode animated GIF and create sharp instance.
+- `options` [DecoderOptions](#decoderoptions) - Options for encode animated GIF and create sharp instance.
 - `resolveWithObject` Boolean _(optional)_ - Return an [ImageData](#imagedata) containing `image` (an instance of sharp) property and decoding info instead of only an instance of sharp. Default by `false`.
 
 Returns `Promise<Sharp | ImageData>` - Resolve with an instance of animated sharp, or an [ImageData](#imagedata) containing `image` (an instances of sharp) property and decoding info.
 
 ### `DecoderOptions`
 
-Options for decode animated GIF and create sharp instance.
+Options for encode animated GIF and create sharp instance.
 
 - `sharpOptions` Number _(optional)_ - Sharp constructor [options](https://sharp.pixelplumbing.com/api-constructor#parameters).
-- `delay` Number _(optional)_ - Amount of milliseconds to delay between frames.
-- `repeat` Number _(optional)_ - Amount of times to repeat GIF. Default by `0`, loop indefinitely.
-- `quality` Number _(optional)_ - Quality, `1` is best colors and worst performance, `20` is suggested maximum but there is no limit. Default by `10`
-- `transparent` String _(optional)_ - Define the color which represents transparency in the GIF. Default by `"#FFFFFF"`.
-- `disposalCode` Number _(optional)_ - Alters behavior of how to render between frames. If no transparent color has been set, defaults to 0. Otherwise, defaults to 2.
+- `delay` (Number | Number[]) _(optional)_ - Delay(s) between animation frames (in milliseconds).
+- `repeat` Number _(optional)_ - Number of animation iterations, use `0` for infinite animation. Default by `0`.
+- `transparent` Boolean _(optional)_ - Enable 1-bit transparency for the GIF. Default by `false`.
+- `maxColors` Number _(optional)_ - Quantize the total number of colors down to a reduced palette no greater than maxColors. Default by `256`.
+- `format` ("rgb565" | "rgb444" | "rgba4444") _(optional)_ - Color format. Default by `rgb565`.
+  - `rgb565` means 5 bits red, 6 bits green, 5 bits blue (better quality, slower)
+  - `rgb444` is 4 bits per channel (lower quality, faster)
+  - `rgba4444` is the same as above but with alpha support
+- `gifEncoderOptions` Object _(optional)_ - gifenc [GIFEncoder()](https://github.com/mattdesl/gifenc#gif--gifencoderopts--) options.
+- `gifEncoderQuantizeOptions` Object _(optional)_ - gifenc [quantize()](https://github.com/mattdesl/gifenc#palette--quantizergba-maxcolors-options--) options.
+- `gifEncoderFrameOptions` Object _(optional)_ - gifenc [gif.writeFrame()](https://github.com/mattdesl/gifenc#gifwriteframeindex-width-height-opts--) options.
 
 ### `ImageData`
 
@@ -126,3 +132,7 @@ Options for resize frames and encode APNG.
 ### 0.1.1
 
 - Feature: Remove [sharp-gif](https://www.npmjs.com/package/sharp-gif) dependency, use [gif-encoder](https://www.npmjs.com/package/gif-encoder) to encode animated GIF buffer directly to improve performance.
+
+### 0.1.5
+
+- Feature: Use [gifenc](https://www.npmjs.com/package/gifenc) instead of [gif-encoder](https://www.npmjs.com/package/gif-encoder) to encode animated GIF buffer.
